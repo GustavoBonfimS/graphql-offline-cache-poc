@@ -5,6 +5,7 @@ import "../global.css";
 import { ApolloProvider } from "@apollo/client";
 import ApolloClient from '../lib/apollo'
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import OfflineQueue from "../services/offline-queue";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -19,6 +20,7 @@ function RootLayout() {
       }}
     />
      <FlashMessage statusBarHeight={insets.top} floating />
+     <OfflineQueue />
     </ApolloProvider>
   );
 }

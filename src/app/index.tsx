@@ -1,7 +1,14 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { gql, useQuery } from "@apollo/client";
 import { faker } from "@faker-js/faker";
-import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Animated, {
   LinearTransition,
   SlideInLeft,
@@ -43,7 +50,9 @@ function MainPage() {
   const insets = useSafeAreaInsets();
 
   function handleAddNewCharacter() {
-    const actualCharacters = data?.characters.results;
+    const actualCharacters = apolloClient.readQuery<GetCharactersResponse>({
+      query: GET_ALL_CHARACTERS
+    });
 
     if (!actualCharacters) return;
 
@@ -59,7 +68,7 @@ function MainPage() {
       query: GET_ALL_CHARACTERS,
       data: {
         characters: {
-          results: [newCharacter, ...data?.characters.results],
+          results: [newCharacter, ...actualCharacters.characters.results],
         },
       },
       overwrite: true,
@@ -106,14 +115,12 @@ function MainPage() {
         </View>
       </ScrollView>
 
-      <View className="py-2 px-4 bg-white border-green-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center">
-        <Text
-          className="font-bold text-green-700"
-          onPress={handleAddNewCharacter}
-        >
-          Adicionar personagem
-        </Text>
-      </View>
+      <Pressable
+        className="py-2 px-4 bg-white border-green-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
+        onPress={handleAddNewCharacter}
+      >
+        <Text className="font-bold text-green-700">Adicionar personagem</Text>
+      </Pressable>
     </View>
   );
 }

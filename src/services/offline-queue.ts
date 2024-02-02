@@ -9,7 +9,7 @@ type QueuedRequest = {
 
 export const requestsInQueue: QueuedRequest[] = [];
 
-function RequestQueue() {
+function OfflineQueue() {
   const { isConnected } = useNetInfo();
 
   useEffect(() => {
@@ -31,4 +31,4 @@ function RequestQueue() {
   return null;
 }
 
-export default RequestQueue;
+export default OfflineQueue;
