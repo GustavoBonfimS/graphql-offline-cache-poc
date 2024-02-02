@@ -44,74 +44,81 @@ type GetCharactersResponse = {
 };
 
 function MainPage() {
-  const { data, loading, client } = useQuery<GetCharactersResponse>(GET_ALL_CHARACTERS);
+  const { data, loading, client } =
+    useQuery<GetCharactersResponse>(GET_ALL_CHARACTERS);
   const insets = useSafeAreaInsets();
 
   function handleAddNewCharacter() {
     const actualCharacters = client.readQuery<GetCharactersResponse>({
-      query: GET_ALL_CHARACTERS
+      query: GET_ALL_CHARACTERS,
     });
 
     if (!actualCharacters) return;
 
-    client.cache.updateQuery<GetCharactersResponse>({
-      query: GET_ALL_CHARACTERS,
-      overwrite: true
-    }, (data) => {
-      const newCharacter: Character = {
-        id: faker.string.uuid(),
-        image: faker.image.url(),
-        name: faker.person.firstName(),
-        species: "Humano",
-        status: "Alive",
-      };
+    client.cache.updateQuery<GetCharactersResponse>(
+      {
+        query: GET_ALL_CHARACTERS,
+        overwrite: true,
+      },
+      (data) => {
+        const newCharacter: Character = {
+          id: faker.string.uuid(),
+          image: faker.image.url(),
+          name: faker.person.firstName(),
+          species: "Humano",
+          status: "Alive",
+        };
 
-      if (!data?.characters?.results) {
+        if (!data?.characters?.results) {
+          return {
+            characters: {
+              results: [newCharacter],
+            },
+          };
+        }
+
         return {
           characters: {
-            results: [newCharacter]
-          }
-        }
+            results: [newCharacter, ...data.characters.results],
+          },
+        };
       }
-
-      return {
-        characters: {
-          results: [newCharacter, ...data.characters.results]
-        }
-      }
-    })
+    );
   }
 
   function handleRemoveCharacter(id: string) {
-    client.cache.updateQuery<GetCharactersResponse>({
-      query: GET_ALL_CHARACTERS,
-      overwrite: true
-    }, (data) => {
-      if (!data?.characters?.results) return data;
+    client.cache.updateQuery<GetCharactersResponse>(
+      {
+        query: GET_ALL_CHARACTERS,
+        overwrite: true,
+      },
+      (data) => {
+        if (!data?.characters?.results) return data;
 
-      const allCharacters = [...data.characters.results];
-      const characterIndex = allCharacters.findIndex(item => item.id === id);
+        const allCharacters = [...data.characters.results];
+        const characterIndex = allCharacters.findIndex(
+          (item) => item.id === id
+        );
 
-      if (characterIndex <0) return data;
+        if (characterIndex < 0) return data;
 
-      allCharacters.splice(characterIndex, 1);
-      return {
-        characters: {
-          results: [...allCharacters]
-        }
+        allCharacters.splice(characterIndex, 1);
+        return {
+          characters: {
+            results: [...allCharacters],
+          },
+        };
       }
-    })
+    );
   }
 
   if (loading) {
     <View className="flex-1 items-center justify-center bg-zinc-800">
-        <View className="flex-row items-center gap-3">
-          <ActivityIndicator size="large" color={colors.green["700"]} />
-          <Text>
-            Carregando personagens...
-          </Text>
-        </View>
+      <View className="flex-row items-center gap-3">
+        <ActivityIndicator size="large" color={colors.green["700"]} />
+        <Text>Carregando personagens...</Text>
       </View>
+    </View>;
   }
 
   return (
@@ -129,7 +136,10 @@ function MainPage() {
               key={c.id}
               layout={LinearTransition}
             >
-              <Pressable className="rounded-lg p-4 bg-white w-full min-h-14 flex-row gap-4" onLongPress={() => handleRemoveCharacter(c.id)}>
+              <Pressable
+                className="rounded-lg p-4 bg-white w-full min-h-14 flex-row gap-4"
+                onLongPress={() => handleRemoveCharacter(c.id)}
+              >
                 <Image
                   className="w-20 h-20"
                   src={c.image}
@@ -147,18 +157,18 @@ function MainPage() {
       </ScrollView>
 
       <View className="gap-3">
-      <Pressable
-        className="py-2 px-4 bg-white border-green-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
-        onPress={handleAddNewCharacter}
-      >
-        <Text className="font-bold text-green-700">Adicionar personagem</Text>
-      </Pressable>
-      <Pressable
-        className="py-2 px-4 bg-white border-red-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
-        onPress={() => client.cache.reset()}
-      >
-        <Text className="font-bold text-red-700">Limpar cache</Text>
-      </Pressable>
+        <Pressable
+          className="py-2 px-4 bg-white border-green-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
+          onPress={handleAddNewCharacter}
+        >
+          <Text className="font-bold text-green-700">Adicionar personagem</Text>
+        </Pressable>
+        <Pressable
+          className="py-2 px-4 bg-white border-red-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
+          onPress={() => client.cache.reset()}
+        >
+          <Text className="font-bold text-red-700">Limpar cache</Text>
+        </Pressable>
       </View>
     </View>
   );
