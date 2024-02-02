@@ -56,23 +56,34 @@ function MainPage() {
 
     if (!actualCharacters) return;
 
-    const newCharacter: Character = {
-      id: faker.string.uuid(),
-      image: "https://via.placeholder.com/120",
-      name: faker.person.firstName(),
-      species: "Humano",
-      status: "Alive",
-    };
 
-    apolloClient.writeQuery({
+
+    apolloClient.cache.updateQuery<GetCharactersResponse>({
       query: GET_ALL_CHARACTERS,
-      data: {
+      overwrite: true
+    }, (data) => {
+      const newCharacter: Character = {
+        id: faker.string.uuid(),
+        image: "https://via.placeholder.com/120",
+        name: faker.person.firstName(),
+        species: "Humano",
+        status: "Alive",
+      };
+
+      if (!data?.characters?.results) {
+        return {
+          characters: {
+            results: [newCharacter]
+          }
+        }
+      }
+
+      return {
         characters: {
-          results: [newCharacter, ...actualCharacters.characters.results],
-        },
-      },
-      overwrite: true,
-    });
+          results: [newCharacter, ...data.characters.results]
+        }
+      }
+    })
   }
 
   if (loading) {
