@@ -15,6 +15,8 @@ import Animated, {
   SlideOutRight,
 } from "react-native-reanimated";
 import colors from "tailwindcss/colors";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { addJob } from "../services/offline-queue";
 
 const GET_ALL_CHARACTERS = gql`
   query getAllCharacters {
@@ -49,42 +51,57 @@ function MainPage() {
     useQuery<GetCharactersResponse>(GET_ALL_CHARACTERS);
   const insets = useSafeAreaInsets();
 
+  const { isConnected } = useNetInfo();
+
   function handleAddNewCharacter() {
-    const actualCharacters = client.readQuery<GetCharactersResponse>({
-      query: GET_ALL_CHARACTERS,
-    });
 
-    if (!actualCharacters) return;
-
-    client.cache.updateQuery<GetCharactersResponse>(
-      {
+    if (!isConnected) {
+      addJob({
+        request: {
+          method: 'GET',
+          url: 'https://example.com',
+          body: {
+            foo: 'testing'
+          }
+        }
+      })
+      const actualCharacters = client.readQuery<GetCharactersResponse>({
         query: GET_ALL_CHARACTERS,
-        overwrite: true,
-      },
-      (data) => {
-        const newCharacter: Character = {
-          id: faker.string.uuid(),
-          image: faker.image.url(),
-          name: faker.person.firstName(),
-          species: "Humano",
-          status: "Alive",
-        };
+      });
 
-        if (!data?.characters?.results) {
+      if (!actualCharacters) return;
+
+      client.cache.updateQuery<GetCharactersResponse>(
+        {
+          query: GET_ALL_CHARACTERS,
+          overwrite: true,
+        },
+        (data) => {
+          const newCharacter: Character = {
+            id: faker.string.uuid(),
+            image: faker.image.url(),
+            name: faker.person.firstName(),
+            species: "Humano",
+            status: "Alive",
+          };
+
+          if (!data?.characters?.results) {
+            return {
+              characters: {
+                results: [newCharacter],
+              },
+            };
+          }
+
           return {
             characters: {
-              results: [newCharacter],
+              results: [newCharacter, ...data.characters.results],
             },
           };
         }
+      );
+    }
 
-        return {
-          characters: {
-            results: [newCharacter, ...data.characters.results],
-          },
-        };
-      }
-    );
   }
 
   function handleRemoveCharacter(id: string) {

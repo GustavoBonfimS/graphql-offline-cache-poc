@@ -7228,6 +7228,11 @@ react-native-iphone-screen-helper@^2.0.2:
   resolved "https://registry.yarnpkg.com/react-native-iphone-screen-helper/-/react-native-iphone-screen-helper-2.1.1.tgz#80e82a9badf97934f41739c58f518914b8ae1e91"
   integrity sha512-geuw/bli83+tOg8UpoioLk1H1aEy0wnMDusWkCazsyH6fSk6qzmgaZ2cRyyJRU8s2tG87HctZFKGTkyYzcUcfA==
 
+react-native-job-queue@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-job-queue/-/react-native-job-queue-0.5.1.tgz#f2057fb35ba2571e5fd36e2e9463bfffda6b22f1"
+  integrity sha512-2WqGCkFH2p75wiI74Bv21PwjwjUvgYnBfv4+/MdhtzqRQCYlBsXEOgxSk3Vw2tm1FyT8EcS08rx8HRdwny6fcQ==
+
 react-native-reanimated@^3.6.2:
   version "3.6.2"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.6.2.tgz#8a48c37251cbd3b665a659444fa9778f5b510356"
