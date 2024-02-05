@@ -16,7 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import colors from "tailwindcss/colors";
 import { useNetInfo } from "@react-native-community/netinfo";
-import { addJob } from "../services/offline-queue";
+import { addJob, clearQueue } from "../services/offline-queue";
 
 const GET_ALL_CHARACTERS = gql`
   query getAllCharacters {
@@ -54,6 +54,7 @@ function MainPage() {
   const { isConnected } = useNetInfo();
 
   function handleAddNewCharacter() {
+    console.log('isConnected', isConnected  );
     if (isConnected === false) {
       addJob({
         request: {
@@ -128,6 +129,11 @@ function MainPage() {
     );
   }
 
+  function handleClean() {
+    client.cache.reset();
+    clearQueue();
+  }
+
   if (loading) {
     <View className="flex-1 items-center justify-center bg-zinc-800">
       <View className="flex-row items-center gap-3">
@@ -190,7 +196,7 @@ function MainPage() {
           </Pressable>
           <Pressable
             className="py-2 px-4 bg-white border-red-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
-            onPress={() => client.cache.reset()}
+            onPress={handleClean}
           >
             <Text className="font-bold text-red-700">Limpar cache</Text>
           </Pressable>

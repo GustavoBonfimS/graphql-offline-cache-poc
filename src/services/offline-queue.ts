@@ -17,6 +17,14 @@ export function addJob(payload: QueuedRequest) {
   QueueJob.addJob(WORKER_NAME, payload, undefined, false);
 }
 
+export async function clearQueue() {
+  // const jobs = await QueueJob.getJobs();
+  // jobs.forEach(job => {
+  //   QueueJob.cancelJob(job.id)
+  // })
+  QueueJob.removeWorker(WORKER_NAME, true)
+}
+
 function OfflineQueue() {
   const { isConnected } = useNetInfo();
 
@@ -37,21 +45,22 @@ function OfflineQueue() {
 
     async function startQueue() {
       const jobs = await QueueJob.getJobs();
-      if (isConnected === false && jobs.length > 0) {
+      console.log('jobs length', jobs.length);
+      if (jobs.length > 0) {
         console.log("starting queue");
         QueueJob.start();
       }
     }
 
-    startQueue();
+    if (isConnected === true) {
+      startQueue();
+    }
   }, [isConnected]);
 
   useEffect(() => {
     async function setupQueue() {
       try {
-        console.log("isConnected", isConnected);
         QueueJob.configure({
-          concurrency: 1,
           onQueueFinish: () => {
             console.log("queue finished");
           },
@@ -66,16 +75,15 @@ function OfflineQueue() {
                 console.log(`running ${workerId}...`);
                 console.log("sending request", payload.request.url);
 
-                await new Promise((resolve) => setTimeout(resolve, 2000));
+                // await new Promise((resolve) => setTimeout(resolve, 2000));
               },
               {
-                concurrency: 1,
                 onFailure: (job, error) => {
-                  console.log("completed job", job.id);
+                  console.log("job failed", job.id);
                   console.log(error);
                 },
                 onCompletion: (job) => {
-                  console.log("job failed", job.id);
+                  console.log("completed job", job.id);
                 },
               }
             )
