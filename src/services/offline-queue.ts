@@ -37,10 +37,15 @@ function OfflineQueue() {
       });
     }
 
-    if (isConnected === false) {
-      console.log("starting queue");
-      QueueJob.start();
+    async function startQueue() {
+      const jobs = await QueueJob.getJobs();
+      if (isConnected === false && jobs.length > 0) {
+        console.log("starting queue");
+        QueueJob.start();
+      }
     }
+
+    startQueue()
   }, [isConnected]);
 
   useEffect(() => {
