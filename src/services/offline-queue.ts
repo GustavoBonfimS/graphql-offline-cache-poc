@@ -17,12 +17,45 @@ export function addJob(payload: QueuedRequest) {
   QueueJob.addJob(WORKER_NAME, payload, undefined, false);
 }
 
+function setupWorker() {
+  const workers = QueueJob.registeredWorkers;
+
+  if (!(WORKER_NAME in workers)) {
+    QueueJob.addWorker(
+      new Worker(
+        WORKER_NAME,
+        async (payload: QueuedRequest, workerId) => {
+          console.log(`running ${workerId}...`);
+          console.log("sending request", payload.request.url);
+
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        },
+        {
+          onFailure: (job, error) => {
+            console.log("job failed", job.id);
+            console.log(error);
+          },
+          onCompletion: (job) => {
+            console.log("completed job", job.id);
+          },
+        }
+      )
+    );
+  }
+}
+
 export async function clearQueue() {
-  // const jobs = await QueueJob.getJobs();
-  // jobs.forEach(job => {
-  //   QueueJob.cancelJob(job.id)
-  // })
-  QueueJob.removeWorker(WORKER_NAME, true)
+  QueueJob.removeWorker(WORKER_NAME, true);
+  setupWorker();
+}
+
+async function startQueue() {
+  const jobs = await QueueJob.getJobs();
+  console.log("jobs length", jobs.length);
+  if (jobs.length > 0) {
+    console.log("starting queue");
+    QueueJob.start();
+  }
 }
 
 function OfflineQueue() {
@@ -43,15 +76,6 @@ function OfflineQueue() {
       });
     }
 
-    async function startQueue() {
-      const jobs = await QueueJob.getJobs();
-      console.log('jobs length', jobs.length);
-      if (jobs.length > 0) {
-        console.log("starting queue");
-        QueueJob.start();
-      }
-    }
-
     if (isConnected === true) {
       startQueue();
     }
@@ -65,30 +89,8 @@ function OfflineQueue() {
             console.log("queue finished");
           },
         });
-        const workers = QueueJob.registeredWorkers;
 
-        if (!(WORKER_NAME in workers)) {
-          QueueJob.addWorker(
-            new Worker(
-              WORKER_NAME,
-              async (payload: QueuedRequest, workerId) => {
-                console.log(`running ${workerId}...`);
-                console.log("sending request", payload.request.url);
-
-                // await new Promise((resolve) => setTimeout(resolve, 2000));
-              },
-              {
-                onFailure: (job, error) => {
-                  console.log("job failed", job.id);
-                  console.log(error);
-                },
-                onCompletion: (job) => {
-                  console.log("completed job", job.id);
-                },
-              }
-            )
-          );
-        }
+        setupWorker();
       } catch (error) {
         console.log(error);
       }

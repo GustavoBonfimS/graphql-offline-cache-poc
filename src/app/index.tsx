@@ -15,7 +15,7 @@ import Animated, {
   SlideOutRight,
 } from "react-native-reanimated";
 import colors from "tailwindcss/colors";
-import { useNetInfo } from "@react-native-community/netinfo";
+import { fetch } from "@react-native-community/netinfo";
 import { addJob, clearQueue } from "../services/offline-queue";
 
 const GET_ALL_CHARACTERS = gql`
@@ -51,10 +51,10 @@ function MainPage() {
     useQuery<GetCharactersResponse>(GET_ALL_CHARACTERS);
   const insets = useSafeAreaInsets();
 
-  const { isConnected } = useNetInfo();
+  async function handleAddNewCharacter() {
+    const { isConnected } = await fetch();
+    console.log(isConnected);
 
-  function handleAddNewCharacter() {
-    console.log('isConnected', isConnected  );
     if (isConnected === false) {
       addJob({
         request: {
@@ -65,6 +65,7 @@ function MainPage() {
           },
         },
       });
+
       const actualCharacters = client.readQuery<GetCharactersResponse>({
         query: GET_ALL_CHARACTERS,
       });
