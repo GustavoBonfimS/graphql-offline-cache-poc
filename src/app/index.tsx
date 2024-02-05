@@ -12,6 +12,7 @@ import {
 import Animated, {
   LinearTransition,
   SlideInLeft,
+  SlideOutRight,
 } from "react-native-reanimated";
 import colors from "tailwindcss/colors";
 
@@ -133,8 +134,9 @@ function MainPage() {
           {data?.characters?.results?.map((c, index) => (
             <Animated.View
               entering={SlideInLeft.delay(100 * index)}
+              exiting={SlideOutRight}
               key={c.id}
-              layout={LinearTransition}
+              layout={LinearTransition.delay(300)}
             >
               <Pressable
                 className="rounded-lg p-4 bg-white w-full min-h-14 flex-row gap-4"

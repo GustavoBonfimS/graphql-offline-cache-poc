@@ -1,11 +1,11 @@
 import { useNetInfo } from "@react-native-community/netinfo";
 import { useEffect } from "react";
-import { hideMessage, showMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
 
 type QueuedRequest = {
   run: () => void;
   onError: () => void;
-}
+};
 
 export const requestsInQueue: QueuedRequest[] = [];
 
