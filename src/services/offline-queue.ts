@@ -21,7 +21,7 @@ function OfflineQueue() {
   const { isConnected } = useNetInfo();
 
   useEffect(() => {
-    if (!isConnected) {
+    if (isConnected === false) {
       showMessage({
         duration: 5000,
         message: "Você ficou offline",
