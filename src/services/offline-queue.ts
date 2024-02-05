@@ -31,6 +31,7 @@ function setupWorker() {
           await new Promise((resolve) => setTimeout(resolve, 2000));
         },
         {
+          concurrency: 1,
           onFailure: (job, error) => {
             console.log("job failed", job.id);
             console.log(error);
