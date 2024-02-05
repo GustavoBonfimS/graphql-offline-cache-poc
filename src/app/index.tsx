@@ -1,9 +1,9 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Image } from 'expo-image'
 import { gql, useQuery } from "@apollo/client";
 import { faker } from "@faker-js/faker";
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   ScrollView,
   Text,
@@ -117,15 +117,16 @@ function MainPage() {
     <View className="flex-1 items-center justify-center bg-zinc-800">
       <View className="flex-row items-center gap-3">
         <ActivityIndicator size="large" color={colors.green["700"]} />
-        <Text>Carregando personagens...</Text>
+        <Text className="text-white">Carregando personagens...</Text>
       </View>
     </View>;
   }
 
   return (
-    <View
-      className="flex-1 bg-zinc-800 p-4"
-      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    <View className="flex-1 bg-zinc-800" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+      <View
+      className="flex-1 bg-zinc-800 p-4 container mx-auto"
+
     >
       <Text className="text-2xl text-white">Personagens de Rick And Morty</Text>
 
@@ -143,9 +144,12 @@ function MainPage() {
                 onLongPress={() => handleRemoveCharacter(c.id)}
               >
                 <Image
-                  className="w-20 h-20"
-                  src={c.image}
-                  resizeMode="contain"
+                  source={c.image}
+                  alt="character image"
+                  style={{
+                    width: 80,
+                    height: 80
+                  }}
                 />
                 <View className="flex-1">
                   <Text className="text-xl text-black">{c.name}</Text>
@@ -172,6 +176,7 @@ function MainPage() {
           <Text className="font-bold text-red-700">Limpar cache</Text>
         </Pressable>
       </View>
+    </View>
     </View>
   );
 }

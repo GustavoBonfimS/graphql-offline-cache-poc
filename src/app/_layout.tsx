@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { AsyncStorageWrapper, persistCache } from "apollo3-cache-persist";
+import { AsyncStorageWrapper, persistCache, LocalStorageWrapper } from "apollo3-cache-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Text, View } from "react-native";
 import { Stack } from "expo-router";
 export { ErrorBoundary } from "expo-router";
 import FlashMessage from "react-native-flash-message";
@@ -25,7 +25,7 @@ function RootLayout() {
       const cache = new InMemoryCache();
       await persistCache({
         cache,
-        storage: new AsyncStorageWrapper(AsyncStorage),
+        storage: Platform.OS === 'web' ? new LocalStorageWrapper(window.localStorage) : new AsyncStorageWrapper(AsyncStorage),
       });
       setClient(
         new ApolloClient({
@@ -45,7 +45,7 @@ function RootLayout() {
       <View className="flex-1 items-center justify-center bg-zinc-800">
         <View className="flex-row items-center gap-3">
           <ActivityIndicator size="large" color={colors.green["700"]} />
-          <Text>
+          <Text className="text-white">
             Carregando...
           </Text>
         </View>
