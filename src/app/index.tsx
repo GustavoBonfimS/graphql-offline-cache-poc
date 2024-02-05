@@ -1,5 +1,5 @@
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Image } from 'expo-image'
+import { Image } from "expo-image";
 import { gql, useQuery } from "@apollo/client";
 import { faker } from "@faker-js/faker";
 import {
@@ -54,17 +54,16 @@ function MainPage() {
   const { isConnected } = useNetInfo();
 
   function handleAddNewCharacter() {
-
-    if (!isConnected) {
+    if (isConnected === false) {
       addJob({
         request: {
-          method: 'GET',
-          url: 'https://example.com',
+          method: "GET",
+          url: "https://example.com",
           body: {
-            foo: 'testing'
-          }
-        }
-      })
+            foo: "testing",
+          },
+        },
+      });
       const actualCharacters = client.readQuery<GetCharactersResponse>({
         query: GET_ALL_CHARACTERS,
       });
@@ -101,7 +100,6 @@ function MainPage() {
         }
       );
     }
-
   }
 
   function handleRemoveCharacter(id: string) {
@@ -140,60 +138,64 @@ function MainPage() {
   }
 
   return (
-    <View className="flex-1 bg-zinc-800" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
-      <View
-      className="flex-1 bg-zinc-800 p-4 container mx-auto"
-
+    <View
+      className="flex-1 bg-zinc-800"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
-      <Text className="text-2xl text-white">Personagens de Rick And Morty</Text>
+      <View className="flex-1 bg-zinc-800 p-4 container mx-auto">
+        <Text className="text-2xl text-white">
+          Personagens de Rick And Morty
+        </Text>
 
-      <ScrollView className="my-4">
-        <View className="gap-3">
-          {data?.characters?.results?.map((c, index) => (
-            <Animated.View
-              entering={SlideInLeft.delay(100 * index)}
-              exiting={SlideOutRight}
-              key={c.id}
-              layout={LinearTransition.delay(300)}
-            >
-              <Pressable
-                className="rounded-lg p-4 bg-white w-full min-h-14 flex-row gap-4"
-                onLongPress={() => handleRemoveCharacter(c.id)}
+        <ScrollView className="my-4">
+          <View className="gap-3">
+            {data?.characters?.results?.map((c, index) => (
+              <Animated.View
+                entering={SlideInLeft.delay(100 * index)}
+                exiting={SlideOutRight}
+                key={c.id}
+                layout={LinearTransition.delay(300)}
               >
-                <Image
-                  source={c.image}
-                  alt="character image"
-                  style={{
-                    width: 80,
-                    height: 80
-                  }}
-                />
-                <View className="flex-1">
-                  <Text className="text-xl text-black">{c.name}</Text>
-                  <Text className="text-black">{c.species}</Text>
-                  <Text>{c.status}</Text>
-                </View>
-              </Pressable>
-            </Animated.View>
-          ))}
-        </View>
-      </ScrollView>
+                <Pressable
+                  className="rounded-lg p-4 bg-white w-full min-h-14 flex-row gap-4"
+                  onLongPress={() => handleRemoveCharacter(c.id)}
+                >
+                  <Image
+                    source={c.image}
+                    alt="character image"
+                    style={{
+                      width: 80,
+                      height: 80,
+                    }}
+                  />
+                  <View className="flex-1">
+                    <Text className="text-xl text-black">{c.name}</Text>
+                    <Text className="text-black">{c.species}</Text>
+                    <Text>{c.status}</Text>
+                  </View>
+                </Pressable>
+              </Animated.View>
+            ))}
+          </View>
+        </ScrollView>
 
-      <View className="gap-3">
-        <Pressable
-          className="py-2 px-4 bg-white border-green-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
-          onPress={handleAddNewCharacter}
-        >
-          <Text className="font-bold text-green-700">Adicionar personagem</Text>
-        </Pressable>
-        <Pressable
-          className="py-2 px-4 bg-white border-red-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
-          onPress={() => client.cache.reset()}
-        >
-          <Text className="font-bold text-red-700">Limpar cache</Text>
-        </Pressable>
+        <View className="gap-3">
+          <Pressable
+            className="py-2 px-4 bg-white border-green-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
+            onPress={handleAddNewCharacter}
+          >
+            <Text className="font-bold text-green-700">
+              Adicionar personagem
+            </Text>
+          </Pressable>
+          <Pressable
+            className="py-2 px-4 bg-white border-red-400 rounded-lg shadow-sm active:opacity-70 items-center justify-center"
+            onPress={() => client.cache.reset()}
+          >
+            <Text className="font-bold text-red-700">Limpar cache</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
     </View>
   );
 }

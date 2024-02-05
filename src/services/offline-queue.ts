@@ -3,19 +3,17 @@ import { useEffect } from "react";
 import { showMessage } from "react-native-flash-message";
 import QueueJob, { Worker } from "react-native-job-queue";
 
-const WORKER_NAME = 'sync-with-server'
+const WORKER_NAME = "sync-with-server";
 
 type QueuedRequest = {
   request: {
     url: string;
     body?: object;
     method: string;
-  }
+  };
 };
 
 export function addJob(payload: QueuedRequest) {
-  console.log('adding job with payload');
-  console.log(payload);
   QueueJob.addJob(WORKER_NAME, payload, undefined, false);
 }
 
@@ -27,13 +25,13 @@ function OfflineQueue() {
       showMessage({
         duration: 5000,
         message: "Você ficou offline",
-        type: "info",
+        type: "danger",
       });
     } else {
       showMessage({
         duration: 5000,
         message: "Você esta online novamente",
-        type: "info",
+        type: "success",
       });
     }
 
@@ -45,7 +43,7 @@ function OfflineQueue() {
       }
     }
 
-    startQueue()
+    startQueue();
   }, [isConnected]);
 
   useEffect(() => {
@@ -66,9 +64,9 @@ function OfflineQueue() {
               WORKER_NAME,
               async (payload: QueuedRequest, workerId) => {
                 console.log(`running ${workerId}...`);
-                console.log(payload);
+                console.log("sending request", payload.request.url);
 
-                await new Promise(resolve => setTimeout(resolve, 2000))
+                await new Promise((resolve) => setTimeout(resolve, 2000));
               },
               {
                 concurrency: 1,
