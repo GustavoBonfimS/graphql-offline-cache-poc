@@ -2,8 +2,11 @@ import { useNetInfo } from "@react-native-community/netinfo";
 import { useEffect } from "react";
 import { showMessage } from "react-native-flash-message";
 import QueueJob, { Worker } from "react-native-job-queue";
+import BackgroundService from "react-native-background-actions";
 
 const WORKER_NAME = "sync-with-server";
+
+const sleep = (time: number) => new Promise((resolve) => setTimeout(resolve, time));
 
 type QueuedRequest = {
   request: {
@@ -51,11 +54,52 @@ export async function clearQueue() {
 }
 
 async function startQueue() {
+  if (BackgroundService.isRunning()) {
+    return;
+  }
+
   const jobs = await QueueJob.getJobs();
   console.log("jobs length", jobs.length);
   if (jobs.length > 0) {
-    console.log("starting queue");
-    QueueJob.start();
+    console.log("starting queue in background");
+    await BackgroundService.start(
+      async () => {
+        await QueueJob.start();
+
+        for (let i = 0; BackgroundService.isRunning(); i++) {
+          console.log('running on background');
+          console.log(i);
+          await sleep(2000);
+      }
+      },
+      {
+        taskName: "sync offline data",
+        taskDesc: "Sync data with server",
+        taskTitle: "Sincronizando dados...",
+        taskIcon: {
+          name: "ic_launcher",
+          type: "mipmap",
+        },
+      }
+    );
+    await BackgroundService.updateNotification({
+      taskDesc: "Sync data with server",
+      taskTitle: "Sincronizando dados...",
+    });
+  }
+}
+async function setupQueue() {
+  try {
+    QueueJob.configure({
+      onQueueFinish: async () => {
+        console.log("queue finished");
+        await BackgroundService.stop();
+      },
+    });
+
+    setupWorker();
+  } catch (error) {
+    console.log(error);
   }
 }
 
@@ -83,20 +127,6 @@ function OfflineQueue() {
   }, [isConnected]);
 
   useEffect(() => {
-    async function setupQueue() {
-      try {
-        QueueJob.configure({
-          onQueueFinish: () => {
-            console.log("queue finished");
-          },
-        });
-
-        setupWorker();
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
     setupQueue();
   }, []);
 

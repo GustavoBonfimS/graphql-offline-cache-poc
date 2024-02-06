@@ -53,7 +53,6 @@ function MainPage() {
 
   async function handleAddNewCharacter() {
     const { isConnected } = await fetch();
-    console.log(isConnected);
 
     if (isConnected === false) {
       addJob({
